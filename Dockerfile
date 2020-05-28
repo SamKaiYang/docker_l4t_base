@@ -54,10 +54,10 @@ WORKDIR /Documents/docker_sample/l4t-base/installROSXavier
 RUN chmod +x ./installROS.sh
 #安裝會有互動訊息 尚未解決
 RUN ./installROS.sh -p ros-melodic-desktop -p ros-melodic-rgbd-launch
-RUN source /opt/ros/melodic/setup.sh
+#RUN source /opt/ros/melodic/setup.sh
 
 #----------------Install opencv 3.4.9
-RUN sudo apt-get purge libopencv* && \
+RUN sudo apt-get purge -y libopencv* && \
     sudo apt-get install -y build-essential && \
     sudo apt-get install -y cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev && \
     sudo apt-get install -y python-dev python-numpy python3-dev python3-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev 
