@@ -18,6 +18,7 @@ COPY ./samples /Documents/docker_sample/l4t-base/samples
 COPY ./opencvbuild /Documents/docker_sample/l4t-base/opencvbuild
 COPY ./installROSXavier /Documents/docker_sample/l4t-base/installROSXavier
 COPY ./darknet /Documents/docker_sample/l4t-base/darknet
+COPY ./cmake-3.12.1 /Documents/docker_sample/l4t-base/cmake-3.12.1
 #COPY ./samples /tmp/samples
 
 WORKDIR /Documents/docker_sample/l4t-base/samples/1_Utilities/deviceQuery
@@ -86,3 +87,13 @@ RUN sudo apt-get update && \
     sudo pip3 install --extra-index-url https://developer.download.nvidia.com/compute/redist/jp/v42 tensorflow-gpu==1.13.1+nv19.3
 #slove h5py futurewarning
 RUN sudo apt-get purge -y python3-h5py
+
+#-----update cmake 3.12.1
+WORKDIR /Documents/docker_sample/l4t-base/cmake-3.12.1
+RUN cmake . && \
+    make -j8 && \
+    sudo make install && \
+    sudo update-alternatives --install /usr/bin/cmake cmake /usr/local/bin/cmake 1 --force
+#----build yolo v4
+WORKDIR /Documents/docker_sample/l4t-base/darknet
+RUN ./build.sh
