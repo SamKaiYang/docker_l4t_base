@@ -96,4 +96,4 @@ RUN cmake . && \
     sudo update-alternatives --install /usr/bin/cmake cmake /usr/local/bin/cmake 1 --force
 #----build yolo v4
 WORKDIR /Documents/docker_sample/l4t-base/darknet
-RUN ./build.sh
+#RUN ./build.sh
