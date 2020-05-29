@@ -131,7 +131,7 @@ echo "Initializaing rosdep"
 #tput sgr0
 sudo rosdep init
 # To find available packages, use:
-sudo rosdep fix-permissions
+sudo rosdep fix-permissions #add for docker build
 rosdep update
 
 # Environment Setup - Don't add /opt/ros/melodic/setup.bash if it's already in bashrc
