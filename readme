@@ -1,11 +1,33 @@
+#------docker container run
 docker run -it \
+    --net=host \
     --runtime=nvidia \
+    --rm --ipc=host \
     --env="DISPLAY" \
     --env="QT_X11_NO_MITSHM=1" \
     --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+    --volume="/tmp/argus_socket:/tmp/argus_socket" \
+    --cap-add SYS_PTRACE \
     samkaiyang/l4t_base:($tag ) /bin/bash
 
-/Documents/docker_sample/l4t-base/darknet# 
-vi CMakeLists.txt
-註解 168.169行
 
+
+#------yolov4 test
+cmake .
+make
+./darknet detector demo cfg/coco.data cfg/yolov4.cfg yolov4.weights ron.mp4 -dont_show -ext_output
+
+#------if connect realsense 
+docker run -it \
+    --net=host \
+    --runtime=nvidia \
+    --rm --ipc=host \
+    --env="DISPLAY" \
+    --env="QT_X11_NO_MITSHM=1" \
+    --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+    --volume="/tmp/argus_socket:/tmp/argus_socket" \
+    --cap-add SYS_PTRACE \
+    --device=/dev/video0 \
+    --device=/dev/video1 \
+    --device=/dev/video2 \
+    samkaiyang/l4t_base:($tag ) /bin/bash

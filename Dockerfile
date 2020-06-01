@@ -2,12 +2,9 @@ FROM nvcr.io/nvidia/l4t-base:r32.3.1
 #指定docker image存放位置
 VOLUME ["/storage"]
 MAINTAINER sam tt00621212@gmail.com
-#使用者新增
-RUN useradd -ms/bin/bash newuser
+
 #root模式
 USER root
-#USER newuser
-#WORKDIR /home/newuser
 #環境
 ARG DEBIAN_FRONTEND=noninteractive
 ENV DEBIAN_FRONTEND=noninteractive
@@ -96,4 +93,12 @@ RUN cmake . && \
     sudo update-alternatives --install /usr/bin/cmake cmake /usr/local/bin/cmake 1 --force
 #----build yolo v4
 WORKDIR /Documents/docker_sample/l4t-base/darknet
-#RUN ./build.sh
+RUN cmake .
+RUN make
+
+# #使用者新增
+RUN useradd -ms/bin/bash iclab
+
+USER iclab
+WORKDIR /home/iclab
+
