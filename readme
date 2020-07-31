@@ -1,25 +1,40 @@
-#------docker container run
+# 這個映像檔內包含
+1. Ubuntu 18.04
+2. ROS melodic
+3. yolo v4 ROS package
+4. OpenCV3.2
+5. Cuda 10.0
+
+# 先在 terminal 中打下以下指令才可gui顯示
+每當產生新的container前,因需要socket連線
+---
+```
+xhost +local:docker && \
+XSOCK=/tmp/.X11-unix && \
+XAUTH=/tmp/.docker.xauth && \
+xauth nlist $DISPLAY | sed -e 's/^..../ffff/' | xauth -f $XAUTH nmerge -
+```
+# docker container run & no connect camera device
+```
 docker run -it \
+    --user=root \
     --net=host \
     --runtime=nvidia \
     --rm --ipc=host \
-    --env="DISPLAY" \
-    --env="QT_X11_NO_MITSHM=1" \
-    --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
-    --volume="/tmp/argus_socket:/tmp/argus_socket" \
+    -e DISPLAY=$DISPLAY \
+    --env QT_X11_NO_MITSHM=1 \
+    -v $XSOCK:$XSOCK -v $XAUTH:$XAUTH \
+    -e XAUTHORITY=$XAUTH \
     --cap-add SYS_PTRACE \
     samkaiyang/l4t_base:($tag ) /bin/bash
-
-
-
-#------yolov4 test
-cmake .
-make
-./darknet detector demo cfg/coco.data cfg/yolov4.cfg yolov4.weights ron.mp4 -dont_show -ext_output
-
-#------if connect realsense 
+```
+# if connect camera device
+20200727 test ok  open GUI &camera
+---
+```
 docker run -it \
     --net=host \
+    --user=root \
     --runtime=nvidia \
     --rm --ipc=host \
     --env="DISPLAY" \
@@ -31,3 +46,8 @@ docker run -it \
     --device=/dev/video1 \
     --device=/dev/video2 \
     samkaiyang/l4t_base:($tag ) /bin/bash
+```
+# if you want to open more terminal
+```
+docker exec -it --user root <container id> /bin/bash
+```

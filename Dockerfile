@@ -16,6 +16,7 @@ COPY ./opencvbuild /Documents/docker_sample/l4t-base/opencvbuild
 COPY ./installROSXavier /Documents/docker_sample/l4t-base/installROSXavier
 COPY ./darknet /Documents/docker_sample/l4t-base/darknet
 COPY ./cmake-3.12.1 /Documents/docker_sample/l4t-base/cmake-3.12.1
+COPY ./yolov4_ws /Documents/yolov4_ws
 #COPY ./samples /tmp/samples
 
 WORKDIR /Documents/docker_sample/l4t-base/samples/1_Utilities/deviceQuery
@@ -54,23 +55,24 @@ RUN chmod +x ./installROS.sh
 RUN ./installROS.sh -p ros-melodic-desktop -p ros-melodic-rgbd-launch
 #RUN source /opt/ros/melodic/setup.sh
 
-#----------------Install opencv 3.4.9
+
+#----------------Install opencv 3.2.0
 RUN sudo apt-get purge -y libopencv* && \
     sudo apt-get install -y build-essential && \
     sudo apt-get install -y cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev && \
     sudo apt-get install -y python-dev python-numpy python3-dev python3-numpy libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libdc1394-22-dev 
 
 #Install Qt on Ubuntu opencv需要
-RUN sudo apt-get install -y qtcreator && \
-    sudo apt-get install -y qt5-default && \
-    sudo apt-get install -y qt5-doc && \
-    sudo apt-get install -y qt5-doc-html qtbase5-doc-html && \
-    sudo apt-get install -y qtbase5-examples 
+# RUN sudo apt-get install -y qtcreator && \
+#     sudo apt-get install -y qt5-default && \
+#     sudo apt-get install -y qt5-doc && \
+#     sudo apt-get install -y qt5-doc-html qtbase5-doc-html && \
+#     sudo apt-get install -y qtbase5-examples 
 
-WORKDIR /Documents/docker_sample/l4t-base/opencvbuild/opencv-3.4.9
+WORKDIR /Documents/docker_sample/l4t-base/opencvbuild/opencv-3.2.0
 RUN mkdir -p build
-WORKDIR /Documents/docker_sample/l4t-base/opencvbuild/opencv-3.4.9/build
-RUN cmake -D CMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=/usr/local/ -DINSTALL_PYTHON_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DPYTHON_EXCUTABLE=/usr/bin/python -DOPENCV_EXTRA_MODULES_PATH=/Documents/docker_sample/l4t-base/opencvbuild/opencv_contrib-3.4.9/modules -DWITH_CUDA=OFF -DWITH_CUFFT=OFF -DWITH_CUBLAS=OFF -DWITH_TBB=ON -DWITH_V4L=ON -DWITH_QT=ON -DWITH_GTK=ON -DWITH_OPENGL=ON -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_EXAMPLES=ON ..
+WORKDIR /Documents/docker_sample/l4t-base/opencvbuild/opencv-3.2.0/build
+RUN cmake -D CMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=/usr/local/ -DINSTALL_PYTHON_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DPYTHON_EXCUTABLE=/usr/bin/python -DOPENCV_EXTRA_MODULES_PATH=/Documents/docker_sample/l4t-base/opencvbuild/opencv_contrib-3.2.0/modules -DWITH_CUDA=OFF -DWITH_CUFFT=OFF -DWITH_CUBLAS=OFF -DWITH_TBB=ON -DWITH_V4L=ON -DWITH_QT=OFF -DWITH_GTK=ON -DWITH_OPENGL=ON -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_EXAMPLES=ON ..
 RUN make -j8
 RUN sudo make install
 
@@ -91,11 +93,22 @@ RUN cmake . && \
     make -j8 && \
     sudo make install && \
     sudo update-alternatives --install /usr/bin/cmake cmake /usr/local/bin/cmake 1 --force
+#-----source cuda
+RUN echo "export PATH=/usr/local/cuda/bin:$PATH" >> ~/.bashrc && \
+    echo "export PATH=/usr/local/cuda-10.0/bin${PATH:+:${PATH}}" >> ~/.bashrc && \
+    echo "export LD_LIBRARY_PATH=/usr/local/cuda/64:$LD_LIBRARY_PATH" >> ~/.bashrc && \
+    echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc 
+SHELL ["/bin/bash","-c"]
+RUN source ~/.bashrc
 #----build yolo v4
-WORKDIR /Documents/docker_sample/l4t-base/darknet
-RUN cmake .
-RUN make
-
+#WORKDIR /Documents/docker_sample/l4t-base/darknet
+#RUN cmake .
+#RUN make
+RUN sudo apt-get install -y ros-melodic-image-view && \
+    sudo apt-get install -y ros-melodic-usb-cam
+WORKDIR /Documents/yolov4_ws
+#SHELL ["/bin/bash","-c"]
+#RUN catkin_make
 # #使用者新增
 RUN useradd -ms/bin/bash iclab
 
